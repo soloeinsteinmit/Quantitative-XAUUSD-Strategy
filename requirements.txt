@@ -1,0 +1,9 @@
+metatrader5
+pandas
+numpy
+pandas-ta
+scikit-learn
+xgboost
+backtesting
+fastparquet
+dotenv
