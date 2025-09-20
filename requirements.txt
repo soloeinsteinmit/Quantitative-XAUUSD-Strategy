@@ -1,5 +1,6 @@
 metatrader5
 pandas
+pytz
 numpy
 pandas-ta
 scikit-learn
