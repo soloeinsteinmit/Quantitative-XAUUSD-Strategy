@@ -5,6 +5,8 @@ numpy
 pandas-ta
 scikit-learn
 xgboost
+seaborn
+matplotlib
 backtesting
 fastparquet
 dotenv
