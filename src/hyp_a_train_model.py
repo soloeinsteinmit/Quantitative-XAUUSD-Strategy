@@ -7,6 +7,7 @@ import joblib # For saving our trained models
 import argparse
 from datetime import datetime
 import os  # For file operations and checking existing reports
+import sys  # For system exit codes
 
 # --- Argument Parser ---
 parser = argparse.ArgumentParser(description="Train models on financial data.")
@@ -20,18 +21,50 @@ print("Step 1: Loading features...")
 try:
     year = args.year
     hypothesis = args.hypothesis
+    # First try with the full name pattern
+    symbol = 'xauusd'  # default
+    timeframe = 'h1'   # default
+    feature_path = f'../data/processed/{hypothesis}_features_{symbol}_{timeframe}_{year}_present.parquet'
+    
+    # If not found, list available feature files to help debugging
+    if not os.path.exists(feature_path):
+        print(f"Error: Feature file not found: {feature_path}")
+        print("\nAvailable feature files in processed directory:")
+        try:
+            files = [f for f in os.listdir('../data/processed') if f.endswith('.parquet')]
+            if files:
+                for f in files:
+                    print(f"- {f}")
+            else:
+                print("No .parquet files found!")
+        except Exception as e:
+            print(f"Could not list directory: {e}")
+            
+        print(f"\nPlease run: python {hypothesis}_feature_engineering.py --year {year} --symbol {symbol} --timeframe {timeframe}")
+        sys.exit(1)  # Exit with error code 1
+        
     # Read metadata from feature file name
-    feature_file = pd.read_parquet(f'../data/processed/{hypothesis}_features_{year}_present.parquet')
+    feature_file = pd.read_parquet(feature_path)
+    
     # Extract timeframe and symbol from the data
     timeframe = feature_file['timeframe'].iloc[0] if 'timeframe' in feature_file.columns else 'h1'
     symbol = feature_file['symbol'].iloc[0] if 'symbol' in feature_file.columns else 'xauusd'
     df = feature_file.drop(columns=['timeframe', 'symbol'], errors='ignore')
-except FileNotFoundError:
-    print("Error: The feature file was not found.")
-    print("Please run the 'feature_engineering.py' script first.")
-    exit()
+except Exception as e:
+    print(f"Error loading feature file: {str(e)}")
+    print(f"Please ensure the feature engineering step completed successfully.")
+    sys.exit(1)  # Exit with error code 1
+
+# Verify required columns exist
+required_columns = ['london_direction', 'london_return']
+missing_columns = [col for col in required_columns if col not in df.columns]
+if missing_columns:
+    print(f"Error: Missing required columns in feature file: {missing_columns}")
+    print("Please ensure feature engineering step created all required features.")
+    sys.exit(1)
 
 print("Features loaded successfully.")
+print("\nDataset Information:")
 df.info()
 
 # --- Step 2: Define Features, Targets, and Split Data ---

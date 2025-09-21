@@ -1,0 +1,46 @@
+=== Model Training Results ===
+Date: 2025-09-21 11:18:43
+Hypothesis: hyp_a
+Year: 2018
+Symbol: xauusd
+Timeframe: h1
+
+Dataset Information:
+Total samples: 1984
+Training samples: 1587
+Testing samples: 397
+
+=== Classification Model Results ===
+Classification Report:
+              precision    recall  f1-score   support
+
+ Bearish (0)       0.51      0.45      0.48       184
+ Bullish (1)       0.57      0.62      0.59       213
+
+    accuracy                           0.54       397
+   macro avg       0.54      0.54      0.53       397
+weighted avg       0.54      0.54      0.54       397
+
+
+=== Regression Model Results ===
+Mean Absolute Error (MAE): 0.005979
+R-squared (R2 Score): -0.7396
+
+MAE: Average prediction error in percentage points
+R2: Proportion of variance explained by the model (0 to 1, higher is better)
+
+=== Feature Importance ===
+
+Top Features for Regression Model:
+             Feature  Importance
+3  atr_at_asia_close    0.202409
+5         ema50_dist    0.149442
+1        asia_return    0.145932
+4  rsi_at_asia_close    0.137248
+6        ema200_dist    0.136162
+2         asia_range    0.128810
+0        day_of_week    0.099995
+
+=== Model File Locations ===
+Classification model: ../models/xgb_classifier_hyp_a_xauusd_h1_2018_present.joblib
+Regression model: ../models/xgb_regressor_hyp_a_xauusd_h1_2018_present.joblib
