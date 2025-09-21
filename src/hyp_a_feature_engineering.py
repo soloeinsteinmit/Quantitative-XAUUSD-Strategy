@@ -197,7 +197,12 @@ final_df.set_index('date', inplace=True)
 # .dropna() removes these rows with missing values, ensuring our data is clean for the model.
 final_df.dropna(inplace=True)
 
-output_path = f'../data/processed/hyp_a_features_{year}_present.parquet'
+# Add metadata columns
+final_df['timeframe'] = timeframe
+final_df['symbol'] = symbol
+
+# Save with metadata in filename
+output_path = f'../data/processed/hyp_a_features_{symbol}_{timeframe}_{year}_present.parquet'
 final_df.to_parquet(output_path)
 
 print(f"Successfully saved feature data to {output_path}")

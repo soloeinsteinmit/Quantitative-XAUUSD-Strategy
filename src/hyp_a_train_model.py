@@ -6,6 +6,7 @@ from sklearn.metrics import classification_report, mean_absolute_error, r2_score
 import joblib # For saving our trained models
 import argparse
 from datetime import datetime
+import os  # For file operations and checking existing reports
 
 # --- Argument Parser ---
 parser = argparse.ArgumentParser(description="Train models on financial data.")
@@ -19,7 +20,12 @@ print("Step 1: Loading features...")
 try:
     year = args.year
     hypothesis = args.hypothesis
-    df = pd.read_parquet(f'../data/processed/{hypothesis}_features_{year}_present.parquet')
+    # Read metadata from feature file name
+    feature_file = pd.read_parquet(f'../data/processed/{hypothesis}_features_{year}_present.parquet')
+    # Extract timeframe and symbol from the data
+    timeframe = feature_file['timeframe'].iloc[0] if 'timeframe' in feature_file.columns else 'h1'
+    symbol = feature_file['symbol'].iloc[0] if 'symbol' in feature_file.columns else 'xauusd'
+    df = feature_file.drop(columns=['timeframe', 'symbol'], errors='ignore')
 except FileNotFoundError:
     print("Error: The feature file was not found.")
     print("Please run the 'feature_engineering.py' script first.")
@@ -81,24 +87,37 @@ class_report = classification_report(y_test_class, y_pred_class, target_names=['
 print("\nClassification Report:")
 print(class_report)
 
-# Save results to a text file
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-results_file = f'../reports/model_results_{hypothesis}_{year}_{timestamp}.txt'
+# Check if a report for this configuration already exists
+base_pattern = f'model_results_{hypothesis}_{symbol}_{timeframe}_{year}_*.txt'
+existing_reports = [f for f in os.listdir('../reports') if f.startswith(f'model_results_{hypothesis}_{symbol}_{timeframe}_{year}_')]
 
-with open(results_file, 'w') as f:
-    f.write(f"=== Model Training Results ===\n")
-    f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-    f.write(f"Hypothesis: {hypothesis}\n")
-    f.write(f"Year: {year}\n")
-    f.write(f"\nDataset Information:\n")
-    f.write(f"Total samples: {len(df)}\n")
-    f.write(f"Training samples: {len(X_train)}\n")
-    f.write(f"Testing samples: {len(X_test)}\n")
-    f.write(f"\n=== Classification Model Results ===\n")
-    f.write("Classification Report:\n")
-    f.write(class_report)
+if existing_reports:
+    print(f"\nFound existing reports for this configuration:")
+    for report in existing_reports:
+        print(f"- {report}")
+    print("\nSkipping report generation to avoid duplicates.")
+    should_save_report = False
+else:
+    # No existing report found, prepare to save results
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    results_file = f'../reports/model_results_{hypothesis}_{symbol}_{timeframe}_{year}_{timestamp}.txt'
+    should_save_report = True
 
-print(f"\nClassification results saved to: {results_file}")
+# We'll collect all results before writing to file (only if we should save)
+results = []
+results.append("=== Model Training Results ===")
+results.append(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+results.append(f"Hypothesis: {hypothesis}")
+results.append(f"Year: {year}")
+results.append(f"Symbol: {symbol}")
+results.append(f"Timeframe: {timeframe}")
+results.append(f"\nDataset Information:")
+results.append(f"Total samples: {len(df)}")
+results.append(f"Training samples: {len(X_train)}")
+results.append(f"Testing samples: {len(X_test)}")
+results.append(f"\n=== Classification Model Results ===")
+results.append("Classification Report:")
+results.append(class_report)
 
 # --- Step 4: Train Regression Model ---
 print("\n--- Training Regression Model (Hypothesis A2) ---")
@@ -138,8 +157,35 @@ print("R2 Score tells us how much of the variance in the returns our model can e
 print("\nStep 5: Saving models...")
 
 # Define the paths where the models will be saved.
-class_model_path = f'../models/xgb_classifier_{hypothesis}_{year}_present.joblib'
-reg_model_path = f'../models/xgb_regressor_{hypothesis}_{year}_present.joblib'
+class_model_path = f'../models/xgb_classifier_{hypothesis}_{symbol}_{timeframe}_{year}_present.joblib'
+reg_model_path = f'../models/xgb_regressor_{hypothesis}_{symbol}_{timeframe}_{year}_present.joblib'
+
+# Add regression results and feature importance to our results list
+results.append(f"\n=== Regression Model Results ===")
+results.append(f"Mean Absolute Error (MAE): {mae:.6f}")
+results.append(f"R-squared (R2 Score): {r2:.4f}")
+results.append("\nMAE: Average prediction error in percentage points")
+results.append("R2: Proportion of variance explained by the model (0 to 1, higher is better)")
+
+# Add feature importance information
+results.append("\n=== Feature Importance ===")
+feature_importance = pd.DataFrame({
+    'Feature': X.columns,
+    'Importance': model_reg.feature_importances_
+}).sort_values('Importance', ascending=False)
+
+results.append("\nTop Features for Regression Model:")
+results.append(feature_importance.to_string())
+
+results.append("\n=== Model File Locations ===")
+results.append(f"Classification model: {class_model_path}")
+results.append(f"Regression model: {reg_model_path}")
+
+# Write results only if no existing report was found
+if should_save_report:
+    with open(results_file, 'w') as f:
+        f.write('\n'.join(results))
+    print(f"\nResults saved to: {results_file}")
 
 # Use joblib to dump the trained model objects into files.
 joblib.dump(model_class, class_model_path)
@@ -149,24 +195,3 @@ print(f"Classification model saved to: {class_model_path}")
 print(f"Regression model saved to: {reg_model_path}")
 
 
-# Append regression results to the results file
-with open(results_file, 'a') as f:
-    f.write(f"\n=== Regression Model Results ===\n")
-    f.write(f"Mean Absolute Error (MAE): {mae:.6f}\n")
-    f.write(f"R-squared (R2 Score): {r2:.4f}\n")
-    f.write("\nMAE: Average prediction error in percentage points\n")
-    f.write("R2: Proportion of variance explained by the model (0 to 1, higher is better)\n")
-    
-    # Add feature importance information
-    f.write("\n=== Feature Importance ===\n")
-    feature_importance = pd.DataFrame({
-        'Feature': X.columns,
-        'Importance': model_reg.feature_importances_
-    }).sort_values('Importance', ascending=False)
-    
-    f.write("\nTop Features for Regression Model:\n")
-    f.write(feature_importance.to_string())
-    
-    f.write("\n\n=== Model File Locations ===\n")
-    f.write(f"Classification model: {class_model_path}\n")
-    f.write(f"Regression model: {reg_model_path}\n")

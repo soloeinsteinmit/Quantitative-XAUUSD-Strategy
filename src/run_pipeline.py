@@ -3,36 +3,10 @@ import sys
 import subprocess
 import time
 from datetime import datetime
-import threading
-import itertools
+
 import argparse
 
-class Spinner:
-    def __init__(self, message="Processing"):
-        self.spinner = itertools.cycle(['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷'])
-        self.running = False
-        self.message = message
-        self.thread = None
 
-    def spin(self):
-        while self.running:
-            sys.stdout.write(f"\r{self.message} {next(self.spinner)}")
-            sys.stdout.flush()
-            time.sleep(0.1)
-        sys.stdout.write('\r' + ' ' * (len(self.message) + 2))
-
-    def start(self, message=None):
-        if message:
-            self.message = message
-        self.running = True
-        self.thread = threading.Thread(target=self.spin)
-        self.thread.start()
-
-    def stop(self):
-        self.running = False
-        if self.thread:
-            self.thread.join()
-        sys.stdout.write('\r')
 
 def print_banner():
     banner = """
@@ -65,32 +39,67 @@ def print_banner():
     print(banner)
 
 def get_user_input():
-    """Get user input with validation."""
-    hypothesis = input("Enter the hypothesis (e.g., hyp_a): ").strip()
-    
-    # For symbol, use XAUUSD as default if nothing is entered
-    symbol = input("Enter the symbol (default: XAUUSD): ").strip()
-    if not symbol:
-        symbol = "XAUUSD"
-    
+    """Get user input with validation and retry options."""
     while True:
         try:
-            year = int(input("Enter the start year (e.g., 2018): ").strip())
-            if year < 2015:
-                print("Error: Start year cannot be before 2015.")
-                continue
-            break
-        except ValueError:
-            print("Please enter a valid year (e.g., 2018)")
-    
-    # For timeframe, use H1 as default if nothing is entered
-    timeframe = input("Enter the timeframe (default: H1): ").strip()
-    if not timeframe:
-        timeframe = "H1"
-    # Convert timeframe to uppercase
-    timeframe = timeframe.upper()
-    
-    return hypothesis, symbol, year, timeframe
+            # Hypothesis is mandatory
+            while True:
+                hypothesis = input("Enter the hypothesis (e.g., hyp_a): ").strip().lower()
+                if hypothesis:
+                    break
+                print("Error: Hypothesis is required. Please enter a valid hypothesis.")
+            
+            # Symbol with default
+            symbol = input("Enter the symbol (default: XAUUSD): ").strip().upper()
+            symbol = symbol if symbol else "XAUUSD"
+            
+            # Year with default and validation
+            year_input = input("Enter the start year (default: 2018): ").strip()
+            if not year_input:
+                year = 2018
+            else:
+                try:
+                    year = int(year_input)
+                    if year < 2015:
+                        print("Error: Start year cannot be before 2015.")
+                        continue
+                except ValueError:
+                    print("Error: Please enter a valid year (e.g., 2018)")
+                    continue
+            
+            # Timeframe with default
+            timeframe = input("Enter the timeframe (default: H1): ").strip().upper()
+            timeframe = timeframe if timeframe else "H1"
+            
+            # Final validation
+            print("\nConfirm your selections:")
+            print(f"Hypothesis: {hypothesis}")
+            print(f"Symbol: {symbol}")
+            print(f"Year: {year}")
+            print(f"Timeframe: {timeframe}")
+            
+            confirm = input("\nIs this correct? (Y/n): ").strip().lower()
+            if confirm == '' or confirm == 'y':
+                return hypothesis, symbol, year, timeframe
+            print("\nLet's try again...\n")
+            
+        except KeyboardInterrupt:
+            print("\n\nInput cancelled. Would you like to:")
+            print("1. Try again")
+            print("2. Exit")
+            try:
+                choice = input("Enter your choice (1/2): ").strip()
+                if choice == "2":
+                    sys.exit(0)
+                print("\nLet's try again...\n")
+            except KeyboardInterrupt:
+                sys.exit(0)
+
+def check_data_exists(symbol, timeframe, year):
+    """Check if data file already exists."""
+    filename = f"{symbol.lower()}_{timeframe.lower()}_{year}_present.parquet"
+    filepath = os.path.join("..", "data", "raw", filename)
+    return os.path.exists(filepath)
 
 def validate_inputs(hypothesis, symbol, year, timeframe):
     """Validate user inputs before running the pipeline."""
@@ -107,56 +116,67 @@ def validate_inputs(hypothesis, symbol, year, timeframe):
     if timeframe not in valid_timeframes:
         print(f"Error: Invalid timeframe. Please use one of: {', '.join(sorted(valid_timeframes))}")
         return False
+    
+    # Check if data already exists
+    if check_data_exists(symbol, timeframe, year):
+        print(f"\nNote: Data file for {symbol}_{timeframe}_{year} already exists.")
+        while True:
+            try:
+                redownload = input("Would you like to re-download the data? (y/N): ").strip().lower()
+                if redownload == 'y':
+                    return True
+                elif redownload == '' or redownload == 'n':
+                    print("Using existing data file...")
+                    return True
+                print("Please enter 'y' for yes or 'n' for no.")
+            except KeyboardInterrupt:
+                return False
         
     return True
 
 def run_step(step_name, script_name, args):
-    """Run a pipeline step and handle any errors."""
+    """Run a pipeline step and handle any errors, ensuring it completes before returning."""
     print("\n" + "="*50)
     print(f"{step_name:^50}")
     print("="*50)
-    print(f"\nExecuting: {script_name}")
+    timestamp_start = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"\nStarting: {script_name} at {timestamp_start}")
     print(f"Arguments: {' '.join(args)}\n")
     
     try:
-        # Run the command
-        cmd = [sys.executable, script_name] + args
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+        # Use subprocess.run to execute the command and wait for it to complete
+        process = subprocess.run(
+            [sys.executable, script_name] + args,
+            capture_output=True,
             text=True,
-            bufsize=1,
-            universal_newlines=True
+            check=True
         )
         
-        # Read output in real-time
-        while True:
-            output = process.stdout.readline()
-            if output:
-                print(output.strip())
-            
-            # Check if process has finished
-            if process.poll() is not None:
-                break
+        # Print the standard output from the completed process
+        print("\n--- Script Output ---")
+        for line in process.stdout.splitlines():
+            print(line)
         
-        # Get the remaining output
-        stdout, stderr = process.communicate()
-        if stdout:
-            print(stdout.strip())
-        if stderr:
-            print("\nWarnings/Errors:", file=sys.stderr)
-            print(stderr.strip(), file=sys.stderr)
-        
-        if process.returncode != 0:
-            print(f"\nError: {script_name} failed with return code {process.returncode}")
-            return False
+        # If there were any warnings, print them
+        if process.stderr:
+            print("\n--- Warnings/Errors ---", file=sys.stderr)
+            print(process.stderr, file=sys.stderr)
             
-        print(f"\n{step_name} completed successfully!")
+        timestamp_end = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"\n{step_name} completed at {timestamp_end}")
         return True
         
+    except subprocess.CalledProcessError as e:
+        # This block runs if the script returns a non-zero exit code
+        print(f"\nError: {script_name} failed with return code {e.returncode}", file=sys.stderr)
+        print("\n--- Script Output (stdout) ---", file=sys.stderr)
+        print(e.stdout, file=sys.stderr)
+        print("\n--- Script Error (stderr) ---", file=sys.stderr)
+        print(e.stderr, file=sys.stderr)
+        return False
+        
     except Exception as e:
-        print(f"\nUnexpected error running {script_name}: {e}")
+        print(f"\nAn unexpected error occurred while running {script_name}: {e}", file=sys.stderr)
         return False
 
 def main():
@@ -172,15 +192,15 @@ def main():
         print("\nError: Invalid inputs. Please try again.")
         sys.exit(1)
     
-    # Create necessary directories if they don't exist
-    os.makedirs("../reports", exist_ok=True)
-    os.makedirs("../data/raw", exist_ok=True)
-    os.makedirs("../data/processed", exist_ok=True)
-    os.makedirs("../models", exist_ok=True)
-    
-    # Setup logging
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = f"../reports/report_{hypothesis}_{symbol}_{year}_{timeframe}_{timestamp}.log"
+    # Create necessary directories
+    try:
+        os.makedirs("../reports", exist_ok=True)
+        os.makedirs("../data/raw", exist_ok=True)
+        os.makedirs("../data/processed", exist_ok=True)
+        os.makedirs("../models", exist_ok=True)
+    except Exception as e:
+        print(f"Error creating directories: {e}")
+        sys.exit(1)
     
     # Run pipeline steps
     steps = [
