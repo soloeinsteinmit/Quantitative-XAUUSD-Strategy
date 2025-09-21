@@ -2,12 +2,22 @@ import pandas as pd
 import pandas_ta as ta
 import pytz
 from datetime import datetime, time, timedelta
+import argparse
+
+# --- Argument Parser ---
+parser = argparse.ArgumentParser(description="Feature engineering for financial data.")
+parser.add_argument('--year', type=int, default=2015, help="Year of the data to process.")
+parser.add_argument('--timeframe', type=str, default="h1", help="Timeframe of the data file.")
+parser.add_argument('--symbol', type=str, default="xauusd", help="Symbol of the data file.")
+args = parser.parse_args()
 
 # --- Step 1: Load Data and Set Timezone ---
 print('Loading raw data...')
-year = 2015
+year = args.year
+timeframe = args.timeframe
+symbol = args.symbol
 # Load the hourly data downloaded earlier using fastparquet(pip install this to allow pandas to use for the data loading)
-df_raw = pd.read_parquet(f'../data/raw/xauusd_h1_{year}_present.parquet')
+df_raw = pd.read_parquet(f'../data/raw/{symbol}_{timeframe}_{year}_present.parquet')
 
 # The 'time' column is our master key. We make it the index of the Dataframe.
 df_raw.set_index('time', inplace=True)
@@ -187,8 +197,6 @@ final_df.set_index('date', inplace=True)
 # .dropna() removes these rows with missing values, ensuring our data is clean for the model.
 final_df.dropna(inplace=True)
 
-# year = 2015
-# Save the final, clean dataset. We'll use this for training our models.
 output_path = f'../data/processed/hyp_a_features_{year}_present.parquet'
 final_df.to_parquet(output_path)
 

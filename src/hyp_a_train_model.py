@@ -4,13 +4,22 @@ import xgboost as xgb
 from sklearn.model_selection import train_test_split # We will explain why NOT to use this
 from sklearn.metrics import classification_report, mean_absolute_error, r2_score
 import joblib # For saving our trained models
+import argparse
+from datetime import datetime
+
+# --- Argument Parser ---
+parser = argparse.ArgumentParser(description="Train models on financial data.")
+parser.add_argument('--year', type=int, default=2015, help="Year of the data to process.")
+parser.add_argument('--hypothesis', type=str, default="hyp_a", help="Hypothesis to use for feature and model naming.")
+args = parser.parse_args()
 
 # --- Step 1: Load Feature Data ---
 print("Step 1: Loading features...")
 
 try:
-    year = 2015
-    df = pd.read_parquet(f'../data/processed/hyp_a_features_{year}_present.parquet')
+    year = args.year
+    hypothesis = args.hypothesis
+    df = pd.read_parquet(f'../data/processed/{hypothesis}_features_{year}_present.parquet')
 except FileNotFoundError:
     print("Error: The feature file was not found.")
     print("Please run the 'feature_engineering.py' script first.")
@@ -67,11 +76,29 @@ print("\n--- Evaluating Classification Model ---")
 # Make predictions on the unseen test data.
 y_pred_class = model_class.predict(X_test)
 
-# Print a report showing key metrics.
-# Precision: Of all the "bullish" predictions, how many were correct?
-# Recall: Of all the actual bullish days, how many did we correctly identify?
-# F1-Score: A combined score of precision and recall.
-print(classification_report(y_test_class, y_pred_class, target_names=['Bearish (0)', 'Bullish (1)']))
+# Generate classification report and save it
+class_report = classification_report(y_test_class, y_pred_class, target_names=['Bearish (0)', 'Bullish (1)'])
+print("\nClassification Report:")
+print(class_report)
+
+# Save results to a text file
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+results_file = f'../reports/model_results_{hypothesis}_{year}_{timestamp}.txt'
+
+with open(results_file, 'w') as f:
+    f.write(f"=== Model Training Results ===\n")
+    f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    f.write(f"Hypothesis: {hypothesis}\n")
+    f.write(f"Year: {year}\n")
+    f.write(f"\nDataset Information:\n")
+    f.write(f"Total samples: {len(df)}\n")
+    f.write(f"Training samples: {len(X_train)}\n")
+    f.write(f"Testing samples: {len(X_test)}\n")
+    f.write(f"\n=== Classification Model Results ===\n")
+    f.write("Classification Report:\n")
+    f.write(class_report)
+
+print(f"\nClassification results saved to: {results_file}")
 
 # --- Step 4: Train Regression Model ---
 print("\n--- Training Regression Model (Hypothesis A2) ---")
@@ -100,17 +127,19 @@ y_pred_reg = model_reg.predict(X_test)
 mae = mean_absolute_error(y_test_reg, y_pred_reg)
 r2 = r2_score(y_test_reg, y_pred_reg)
 
+print(f"\nRegression Model Results:")
 print(f"Mean Absolute Error (MAE): {mae:.6f}")
 print("MAE tells us, on average, how far off our return prediction was in percentage points.")
 print(f"R-squared (R2 Score): {r2:.4f}")
 print("R2 Score tells us how much of the variance in the returns our model can explain (closer to 1 is better).")
 
+
 # --- Step 5: Save Trained Models ---
 print("\nStep 5: Saving models...")
 
 # Define the paths where the models will be saved.
-class_model_path = f'../models/xgb_classifier_hyp_a_{year}_present.joblib'
-reg_model_path = f'../models/xgb_regressor_hyp_a_{year}_present.joblib'
+class_model_path = f'../models/xgb_classifier_{hypothesis}_{year}_present.joblib'
+reg_model_path = f'../models/xgb_regressor_{hypothesis}_{year}_present.joblib'
 
 # Use joblib to dump the trained model objects into files.
 joblib.dump(model_class, class_model_path)
@@ -118,3 +147,26 @@ joblib.dump(model_reg, reg_model_path)
 
 print(f"Classification model saved to: {class_model_path}")
 print(f"Regression model saved to: {reg_model_path}")
+
+
+# Append regression results to the results file
+with open(results_file, 'a') as f:
+    f.write(f"\n=== Regression Model Results ===\n")
+    f.write(f"Mean Absolute Error (MAE): {mae:.6f}\n")
+    f.write(f"R-squared (R2 Score): {r2:.4f}\n")
+    f.write("\nMAE: Average prediction error in percentage points\n")
+    f.write("R2: Proportion of variance explained by the model (0 to 1, higher is better)\n")
+    
+    # Add feature importance information
+    f.write("\n=== Feature Importance ===\n")
+    feature_importance = pd.DataFrame({
+        'Feature': X.columns,
+        'Importance': model_reg.feature_importances_
+    }).sort_values('Importance', ascending=False)
+    
+    f.write("\nTop Features for Regression Model:\n")
+    f.write(feature_importance.to_string())
+    
+    f.write("\n\n=== Model File Locations ===\n")
+    f.write(f"Classification model: {class_model_path}\n")
+    f.write(f"Regression model: {reg_model_path}\n")

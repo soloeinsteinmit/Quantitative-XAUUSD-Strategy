@@ -41,23 +41,79 @@ Quantitative-XAUUSD-Strategy/
 ## How to Run This Project
 
 1.  **Clone the repository:**
+
     ```bash
     git clone https://github.com/soloeinsteinmit/Quantitative-XAUUSD-Strategy.git
     cd Quantitative-XAUUSD-Strategy
     ```
-2.  **Install dependencies:**
+
+2.  **Set up Python environment:**
+
     ```bash
+    # Option 1: Using venv
+    python -m venv trade_env
+    # On Windows
+    .\trade_env\Scripts\activate
+    # On Unix or MacOS
+    source trade_env/bin/activate
+
+    # Install requirements
     pip install -r requirements.txt
     ```
-3.  **Run the data pipeline (for Hypothesis A):**
-    - Update your MetaTrader 5 credentials in `src/data_acquisition.py`.
-    - Execute the scripts in order to generate features, train models, and run a backtest for the "Asia -> London" hypothesis.
+
     ```bash
-    python src/data_acquisition.py
-    python src/feature_engineering.py
-    python src/train_model.py # This script will handle training multiple model types
-    python src/backtest.py
+    # Option 2: Using conda
+    conda create -n trade_env python=3.12
+    conda activate trade_env
+
+    # Install requirements
+    pip install -r requirements.txt
     ```
+
+3.  **Configure MetaTrader 5:**
+
+    - Copy the example environment file:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    - Update the `.env` file with your MetaTrader 5 credentials:
+
+    ```env
+    DEMO_ACCOUNT_NUMBER=YOUR_ACCOUNT_NUMBER
+    PASSWORD=YOUR_PASSWORD
+    SERVER=MetaQuotes-Demo
+    ```
+
+4.  **Run the pipeline:**
+
+    Option 1: Step by Step (Recommended for first run)
+
+    ```bash
+    # 1. Download data from MetaTrader 5
+    python src/data_acquisition.py --year 2023
+
+    # 2. Generate features for Hypothesis A
+    python src/hyp_a_feature_engineering.py --year 2023 --timeframe h1 --symbol xauusd
+
+    # 3. Train and evaluate models
+    python src/hyp_a_train_model.py --year 2023 --hypothesis hyp_a
+    ```
+
+    Option 2: Using the Interactive Pipeline
+
+    ```bash
+    # Using Python
+    python src/run_pipeline.py
+    ```
+
+    The interactive pipeline will prompt for parameters and run all steps automatically.
+
+5.  **View Results:**
+    - Model performance metrics and analysis: `reports/model_results_*.txt`
+    - Pipeline execution logs: `reports/report_*.log`
+    - Trained models: `models/xgb_classifier_*.joblib` and `models/xgb_regressor_*.joblib`
 
 ## Research Roadmap & Status
 
