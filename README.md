@@ -88,6 +88,8 @@ Quantitative-XAUUSD-Strategy/
 
 4.  **Run the pipeline:**
 
+    > **Note:** The current implementation supports 1-hour (H1) timeframe data only. Support for additional timeframes (M15, M30, H4, etc.) will be added in future updates.
+
     Option 1: Step by Step (Recommended for first run)
 
     ```bash
