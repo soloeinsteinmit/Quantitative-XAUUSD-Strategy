@@ -1,0 +1,25 @@
+=== Model Training Results ===
+Date: 2025-09-26 21:55:30
+Hypothesis: hyp_a
+Year: 2020
+Symbol: xauusd
+Timeframe: h1
+
+Dataset Information:
+Total samples: 1479
+Training samples: 1183
+Testing samples: 296
+
+=== Transformer Classification Model Results ===
+              precision    recall  f1-score   support
+
+ Bearish (0)       0.53      0.11      0.18       148
+ Bullish (1)       0.50      0.91      0.65       148
+
+    accuracy                           0.51       296
+   macro avg       0.52      0.51      0.41       296
+weighted avg       0.52      0.51      0.41       296
+
+
+=== Model File Locations ===
+Classification model: ../models/hyp_a_xauusd_h1_2020_pytorch_transformer_classifier.pth

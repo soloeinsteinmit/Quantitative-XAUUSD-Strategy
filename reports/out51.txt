@@ -1,0 +1,18 @@
+--- Evaluating Model with Detailed Metrics ---
+
+--- Classification Report ---
+              precision    recall  f1-score   support
+
+ Bearish (0)       0.51      0.45      0.48       201
+ Bullish (1)       0.50      0.57      0.53       198
+
+    accuracy                           0.51       399
+   macro avg       0.51      0.51      0.51       399
+weighted avg       0.51      0.51      0.51       399
+
+
+--- Confusion Matrix ---
+
+regressor
+Mean Absolute Error (MAE) on test data: 0.692496
+This means our model's return prediction is off by this amount on average.

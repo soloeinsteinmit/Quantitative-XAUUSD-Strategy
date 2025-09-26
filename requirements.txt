@@ -7,6 +7,8 @@ scikit-learn
 xgboost
 seaborn
 matplotlib
+torch
+torchvision
 backtesting
 fastparquet
 dotenv

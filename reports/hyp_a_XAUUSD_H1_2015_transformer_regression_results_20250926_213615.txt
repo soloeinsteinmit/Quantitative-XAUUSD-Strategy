@@ -1,0 +1,21 @@
+=== Model Training Results ===
+Date: 2025-09-26 21:36:15
+Hypothesis: hyp_a
+Year: 2015
+Symbol: XAUUSD
+Timeframe: H1
+
+Dataset Information:
+Total samples: 2767
+Training samples: 2213
+Testing samples: 554
+
+=== Transformer Regression Model Results ===
+
+f'
+Mean Absolute Error (MAE) on test data: 0.004801'
+This means our model's return prediction is off by this amount on average.
+    
+
+=== Model File Locations ===
+Classification model: ../models/hyp_a_xauusd_h1_2015_pytorch_transformer_regressor.pth
