@@ -1,7 +1,6 @@
 # src/train_model.py
 import pandas as pd
 import xgboost as xgb
-from sklearn.model_selection import train_test_split # We will explain why NOT to use this
 from sklearn.metrics import classification_report, mean_absolute_error, r2_score
 import joblib # For saving our trained models
 import argparse
@@ -190,8 +189,8 @@ print("R2 Score tells us how much of the variance in the returns our model can e
 print("\nStep 5: Saving models...")
 
 # Define the paths where the models will be saved.
-class_model_path = f'../models/xgb_classifier_{hypothesis}_{symbol}_{timeframe}_{year}_present.joblib'
-reg_model_path = f'../models/xgb_regressor_{hypothesis}_{symbol}_{timeframe}_{year}_present.joblib'
+class_model_path = f'../models/{hypothesis}_{symbol}_{timeframe}_{year}_xgb_classifier.joblib'
+reg_model_path = f'../models/{hypothesis}_{symbol}_{timeframe}_{year}_xgb_regressor.joblib'
 
 # Add regression results and feature importance to our results list
 results.append(f"\n=== Regression Model Results ===")
