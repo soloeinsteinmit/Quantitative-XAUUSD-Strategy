@@ -85,11 +85,11 @@ While each hypothesis will have unique features and targets, the underlying meth
 - **Feature Set (`X`):** Identical to C1.
 - **Target Variable (`y`):** `ny_return` -> The percentage return `(Close_21:00 - Open_17:00) / Open_17:00`.
 
----
+<!-- ---
 
 ## 5. Project Workflow
 
 1.  **Implement Hypothesis A:** Build the full data pipeline and train/backtest both XGBoost and Deep Learning models.
 2.  **Document and Share (v1):** Share the results, code, and models for Hypothesis A on GitHub and Hugging Face, accompanied by a Medium/LinkedIn article comparing the performance of the different model architectures.
 3.  **Implement Hypothesis B & C:** Adapt the existing codebase to test the remaining hypotheses, benchmarking both model types for each.
-4.  **Document and Share (v2):** Write a follow-up article comparing the predictive power across all three hypotheses, providing a final conclusion on which session dynamics are most predictable.
+4.  **Document and Share (v2):** Write a follow-up article comparing the predictive power across all three hypotheses, providing a final conclusion on which session dynamics are most predictable. -->
