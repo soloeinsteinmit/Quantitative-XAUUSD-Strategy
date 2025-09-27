@@ -12,3 +12,4 @@ torchvision
 backtesting
 fastparquet
 dotenv
+backtesting

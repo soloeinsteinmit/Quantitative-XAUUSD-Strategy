@@ -119,7 +119,7 @@ Quantitative-XAUUSD-Strategy/
 
 ## Research Roadmap & Status
 
-- [ ] **Hypothesis A (Asia -> London):** Implement and benchmark XGBoost vs. DL models.
+- [x] **Hypothesis A (Asia -> London):** Implement and benchmark XGBoost vs. DL models.
 - [ ] **Hypothesis B (London Morning -> Overlap):** Implement and benchmark all model types.
 - [ ] **Hypothesis C (Asia+London -> NY):** Implement and benchmark all model types.
 - [ ] **Final Analysis:** Write a comparative report on the performance of all models across all hypotheses.
