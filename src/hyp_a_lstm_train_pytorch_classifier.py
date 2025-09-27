@@ -79,9 +79,9 @@ model.eval() # Set the model to evaluation mode (very important!)
 all_predictions = []
 all_labels = []
 
-# torch.no_grad() tells PyTorch we are not training, so it doesn't need to calculate gradients.
+# torch.inference_mode() tells PyTorch we are not training, so it doesn't need to calculate gradients.
 # This makes evaluation much faster and uses less memory.
-with torch.no_grad():
+with torch.inference_mode():
     for batch_X, batch_y in test_loader:
         # 1. Get the raw model output (logits)
         outputs = model(batch_X).squeeze()

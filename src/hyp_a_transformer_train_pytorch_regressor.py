@@ -74,7 +74,7 @@ print("Training finished.")
 # --- Step 5: Simple Evaluation for REGRESSION ---
 model.eval()
 total_mae = 0.0
-with torch.no_grad():
+with torch.inference_mode():
     for batch_X, batch_y in test_loader:
         outputs = model(batch_X).squeeze()
         # CHANGE: We directly calculate the MAE. No sigmoid, no rounding.
@@ -94,8 +94,8 @@ print(f"\nClassification model saved to {model_path}")
 generate_report(
     hypothesis=hyp,
     year=year,
-    symbol=symbol.upper(),
-    timeframe=timeframe.upper(),
+    symbol=symbol,
+    timeframe=timeframe,
     full_data=len(X),
     X_train=len(X_train),
     X_test=len(X_test),

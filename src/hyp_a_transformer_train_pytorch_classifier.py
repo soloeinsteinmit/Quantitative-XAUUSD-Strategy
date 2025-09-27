@@ -78,7 +78,7 @@ print("\n--- Evaluating Transformer Model with Detailed Metrics ---")
 model.eval()
 all_predictions = []
 all_labels = []
-with torch.no_grad():
+with torch.inference_mode():
     for batch_X, batch_y in test_loader:
         outputs = model(batch_X).squeeze()
         predicted = torch.round(torch.sigmoid(outputs))
