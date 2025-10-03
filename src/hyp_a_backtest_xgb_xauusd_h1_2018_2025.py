@@ -57,7 +57,6 @@ class MLStrategy(Strategy):
 
             # 1. Get today's features
             # We select the row for the current date and drop the target columns
-            # Use the Timestamp to locate the features
             today_features = self.features.loc[[current_date_ts]].drop(columns=['london_direction', 'london_return'])
             
             # 2. Use the model to make a prediction
@@ -83,7 +82,6 @@ price_data = pd.read_parquet('../data/raw/xauusd_h1_2018_present.parquet')
 price_data.set_index('time', inplace=True)
 price_data = price_data.tz_localize('UTC')
 
-# --- THE FIX IS HERE ---
 # The backtesting.py library requires specific column names with capital letters.
 # Let's rename our columns to match its requirements.
 price_data.rename(columns={
@@ -94,7 +92,6 @@ price_data.rename(columns={
     'tick_volume': 'Volume' # We'll rename 'tick_volume' to 'Volume'
 }, inplace=True)
 print("Price data columns renamed to match backtesting.py requirements.")
-# --- END OF FIX ---
 
 # 2. Isolate the test period.
 train_size_raw = int(len(price_data) * 0.8)

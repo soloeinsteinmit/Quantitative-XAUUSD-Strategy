@@ -1,0 +1,37 @@
+--- Backtest Results ---
+Start                     2024-03-08 22:00...
+End                       2025-09-24 08:00...
+Duration                    564 days 10:00:00
+Exposure Time [%]                    99.87939
+Equity Final [$]                  10903.28043
+Equity Peak [$]                     11739.208
+Commissions [$]                     1371.2523
+Return [%]                             9.0328
+Buy & Hold Return [%]                73.37905
+Return (Ann.) [%]                      5.5993
+Volatility (Ann.) [%]                14.63578
+CAGR [%]                              3.93659
+Sharpe Ratio                          0.38258
+Sortino Ratio                         0.55636
+Calmar Ratio                          0.40095
+Alpha [%]                             9.70395
+Beta                                 -0.00915
+Max. Drawdown [%]                   -13.96499
+Avg. Drawdown [%]                     -1.3056
+Max. Drawdown Duration      207 days 16:00:00
+Avg. Drawdown Duration       12 days 05:00:00
+# Trades                                  396
+Win Rate [%]                         52.77778
+Best Trade [%]                         3.9133
+Worst Trade [%]                      -3.88363
+Avg. Trade [%]                         0.0309
+Max. Trade Duration           5 days 00:00:00
+Avg. Trade Duration           1 days 11:00:00
+Profit Factor                         1.10152
+Expectancy [%]                        0.03585
+SQN                                   0.50194
+Kelly Criterion                       0.03529
+_strategy                          MLStrategy
+_equity_curve                             ...
+_trades                        Size  Entry...
+dtype: object

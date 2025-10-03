@@ -1,0 +1,45 @@
+2025-09-30 08:51:39,698 - INFO - Starting trading bot...
+2025-09-30 08:51:39,740 - INFO - MT5 connection successful.
+2025-09-30 08:51:40,867 - INFO - New trading day: 2025-09-30. Ready for signals.
+2025-09-30 08:51:40,868 - INFO - London session open. Attempting to place trade.
+2025-09-30 08:51:40,869 - INFO - No positions managed by this bot were found.
+2025-09-30 08:51:57,665 - INFO - Order successful: BUY 0.1 XAUUSD at 3818.66. Order #4895749674
+2025-09-30 16:00:30,615 - INFO - Bot stopped by user.
+2025-10-01 08:26:07,461 - INFO - Starting trading bot...
+2025-10-01 08:26:07,474 - INFO - MT5 connection successful.
+2025-10-01 08:26:07,735 - INFO - New trading day: 2025-10-01. Ready for signals.
+2025-10-01 08:26:07,735 - INFO - London session open. Attempting to place trade.
+2025-10-01 08:26:07,735 - INFO - No open positions to close.
+2025-10-01 08:26:10,690 - INFO - Order successful: BUY 0.1 XAUUSD at 3891.8. Order #4910080178
+2025-10-01 16:00:11,070 - INFO - London session close. Closing all open positions.
+2025-10-01 16:00:11,095 - INFO - Found 1 total open positions. Checking for bot trades...
+2025-10-01 16:00:11,100 - INFO - Preparing to CLOSE BUY position #4910080178 with a SELL order.
+2025-10-01 16:00:11,238 - INFO - Successfully sent close order for position #4910080178. Result: Request executed
+2025-10-01 16:00:11,239 - INFO - Finished closing 1 positions.
+2025-10-01 16:00:11,273 - INFO - No trades managed by this bot were closed today.
+2025-10-01 16:00:11,274 - INFO - End of day procedure complete. Waiting for next trading day.
+2025-10-01 16:01:11,275 - INFO - London session open. Attempting to place trade.
+2025-10-01 16:01:11,277 - INFO - No open positions to close.
+2025-10-01 16:01:11,876 - INFO - Order successful: BUY 0.1 XAUUSD at 3865.96. Order #4918409753
+2025-10-01 16:01:11,878 - INFO - London session close. Closing all open positions.
+2025-10-01 16:01:11,880 - INFO - Found 1 total open positions. Checking for bot trades...
+2025-10-01 16:01:11,881 - INFO - Preparing to CLOSE BUY position #4918409753 with a SELL order.
+2025-10-01 16:01:12,039 - INFO - Successfully sent close order for position #4918409753. Result: Request executed
+2025-10-01 16:01:12,040 - INFO - Finished closing 1 positions.
+2025-10-01 16:01:12,046 - INFO - No trades managed by this bot were closed today.
+2025-10-01 16:01:12,047 - INFO - End of day procedure complete. Waiting for next trading day.
+2025-10-01 16:01:42,618 - INFO - Bot stopped by user.
+2025-10-02 06:58:44,017 - INFO - Starting trading bot...
+2025-10-02 06:58:44,031 - INFO - MT5 connection successful.
+2025-10-02 06:58:44,296 - INFO - New trading day: 2025-10-02. Ready for signals.
+2025-10-02 07:00:44,298 - INFO - London session open. Attempting to place trade.
+2025-10-02 07:00:44,299 - INFO - No open positions to close.
+2025-10-02 07:00:47,169 - INFO - Order successful: SELL 0.1 XAUUSD at 3864.82. Order #4925094445
+2025-10-02 16:00:47,654 - INFO - London session close. Closing all open positions.
+2025-10-02 16:00:47,664 - INFO - Found 1 total open positions. Checking for bot trades...
+2025-10-02 16:00:47,665 - INFO - Preparing to CLOSE SELL position #4925094445 with a BUY order.
+2025-10-02 16:00:47,933 - INFO - Successfully sent close order for position #4925094445. Result: Request executed
+2025-10-02 16:00:47,934 - INFO - Finished closing 1 positions.
+2025-10-02 16:00:48,007 - INFO - No trades managed by this bot were closed today.
+2025-10-02 16:00:48,008 - INFO - End of day procedure complete. Waiting for next trading day.
+2025-10-02 16:01:22,792 - INFO - Bot stopped by user.
